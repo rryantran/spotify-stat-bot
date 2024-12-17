@@ -1,31 +1,34 @@
 import os
+import asyncio
 from dotenv import load_dotenv
-import discord
+from discord import Intents
+from discord.ext import commands
 
-# load environment variables
+# Load environment variables
 load_dotenv()
 
-# get discord token from .env
+# Get Discord token from .env
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-intents = discord.Intents.default()
+# Set up bot intents
+intents = Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+# Set up commands
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 
-@client.event
+async def load_cogs():
+    """Loads all cogs"""
+    await bot.load_extension("commands.oauth")
+
+
+@bot.event
 async def on_ready():
-    print(f'{client.user} has connected to Discord')
+    """Prints a message when the bot is ready"""
+    print(f'{bot.user} has connected to Discord')
 
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content == 'hello':
-        await message.channel.send('Hello!')
-
-
-client.run(TOKEN)
+# Run the bot
+if __name__ == "__main__":
+    asyncio.run(load_cogs())
+    bot.run(TOKEN)
